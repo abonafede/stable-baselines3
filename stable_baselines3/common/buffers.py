@@ -378,6 +378,7 @@ class RolloutBuffer(BaseBuffer):
         The TD(lambda) estimator has also two special cases:
         - TD(1) is Monte-Carlo estimate (sum of discounted rewards)
         - TD(0) is one-step estimate with bootstrapping (r_t + gamma * v(s_{t+1}))
+        - TD(-1) sets up an n-step advantage
 
         For more information, see discussion in https://github.com/DLR-RM/stable-baselines3/pull/375.
 
@@ -395,9 +396,14 @@ class RolloutBuffer(BaseBuffer):
             else:
                 next_non_terminal = 1.0 - self.episode_starts[step + 1]
                 next_values = self.values[step + 1]
-            delta = self.rewards[step] + self.gamma * next_values * next_non_terminal - self.values[step]
-            last_gae_lam = delta + self.gamma * self.gae_lambda * next_non_terminal * last_gae_lam
-            self.advantages[step] = last_gae_lam
+
+            if self.gae_lambda == -1:
+                last_values = self.rewards[step] + self.gamma * last_values * next_non_terminal
+                self.advantages[step] = last_values - self.values[step]
+            else:
+                delta = self.rewards[step] + self.gamma * next_values * next_non_terminal - self.values[step]
+                last_gae_lam = delta + self.gamma * self.gae_lambda * next_non_terminal * last_gae_lam
+                self.advantages[step] = last_gae_lam
         # TD(lambda) estimator, see Github PR #375 or "Telescoping in TD(lambda)"
         # in David Silver Lecture 4: https://www.youtube.com/watch?v=PnHCvfgC_ZA
         self.returns = self.advantages + self.values
