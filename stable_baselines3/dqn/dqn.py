@@ -58,6 +58,7 @@ class DQN(OffPolicyAlgorithm):
     :param seed: Seed for the pseudo random generators
     :param device: Device (cpu, cuda, ...) on which the code should be run.
         Setting it to auto, the code will be run on the GPU if possible.
+    :param double_dqn: Whether or not to run double dqn or vanilla dqn (default).
     :param _init_setup_model: Whether or not to build the network at the creation of the instance
     """
 
@@ -92,6 +93,7 @@ class DQN(OffPolicyAlgorithm):
         verbose: int = 0,
         seed: Optional[int] = None,
         device: Union[th.device, str] = "auto",
+        double_dqn: bool = False,
         _init_setup_model: bool = True,
     ):
         super().__init__(
@@ -191,8 +193,13 @@ class DQN(OffPolicyAlgorithm):
             with th.no_grad():
                 # Compute the next Q-values using the target network
                 next_q_values = self.q_net_target(replay_data.next_observations)
-                # Follow greedy policy: use the one with the highest value
-                next_q_values, _ = next_q_values.max(dim=1)
+                # Implement Doubl DQN is toggled
+                if self.double_dqn:
+                    max_actions = th.argmax(self.q_net(replay_data.next_observations), dim=1)
+                    next_q_values = th.gather(next_q_values, dim=1, index=max_actions.unsqueeze(-1))
+                else:
+                    # Follow greedy policy: use the one with the highest value
+                    next_q_values, _ = next_q_values.max(dim=1)
                 # Avoid potential broadcast issue
                 next_q_values = next_q_values.reshape(-1, 1)
                 # 1-step TD target

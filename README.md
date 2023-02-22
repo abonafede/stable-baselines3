@@ -8,6 +8,8 @@
 
 # Stable Baselines3
 
+This is Andrew Bonafede's modified version of Stable Baselines3 (SB3) in accordance with Duke's AIPI 531 course on Deep Reinforcement Learning.
+
 Stable Baselines3 (SB3) is a set of reliable implementations of reinforcement learning algorithms in PyTorch. It is the next major version of [Stable Baselines](https://github.com/hill-a/stable-baselines).
 
 You can read a detailed presentation of Stable Baselines3 in the [v1.0 blog post](https://araffin.github.io/post/sb3/) or our [JMLR paper](https://jmlr.org/papers/volume22/20-1364/20-1364.pdf).
