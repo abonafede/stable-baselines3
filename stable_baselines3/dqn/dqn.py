@@ -119,7 +119,6 @@ class DQN(OffPolicyAlgorithm):
             optimize_memory_usage=optimize_memory_usage,
             supported_action_spaces=(spaces.Discrete,),
             support_multi_env=True,
-            double_dqn = False,
         )
 
         self.exploration_initial_eps = exploration_initial_eps
@@ -134,6 +133,8 @@ class DQN(OffPolicyAlgorithm):
         # Linear schedule will be defined in `_setup_model()`
         self.exploration_schedule = None
         self.q_net, self.q_net_target = None, None
+        # Toggle Double DQN
+        self.double_dqn = double_dqn
 
         if _init_setup_model:
             self._setup_model()
